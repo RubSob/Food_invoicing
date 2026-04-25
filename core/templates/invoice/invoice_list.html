@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Invoices</h2>
+
+<a href="/create/" class="btn btn-success">Create</a>
+
+<table class="table">
+<tr><th>ID</th><th>Customer</th><th>Action</th></tr>
+
+{% for invoice in invoices %}
+<tr>
+<td>{{ invoice.id }}</td>
+<td>{{ invoice.customer.name }}</td>
+<td><a href="{% url 'invoice_detail' invoice.id %}">View</a></td>
+</tr>
+{% endfor %}
+
+</table>
+{% endblock %}

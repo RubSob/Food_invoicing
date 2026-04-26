@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<form method="post">
+{% csrf_token %}
+
+{% for item in items %}
+    {{item.name}} (€{{item.price}})
+    <input type="number" name="item_{{item.id}}" value="0"><br>
+{% endfor %}
+
+<button>Create Order</button>
+</form>
+
+{% endblock %}

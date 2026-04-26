@@ -1,94 +1,70 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from .models import *
-from .forms import *
-from django.contrib.auth.models import User
 
-# HOME (LIST)
-def invoice_list(request):
-    invoices = Invoice.objects.all()
-    return render(request, 'invoice/invoice_list.html', {'invoices': invoices})
+def user_login(request):
+    if request.method == "POST":
+        user = authenticate(
+            request,
+            username=request.POST['username'],
+            password=request.POST['password']
+        )
+        if user:
+            login(request, user)
+            return redirect('/')
+    return render(request, 'login.html')
 
 
-def create_invoice(request):
+def user_logout(request):
+    logout(request)
+    return redirect('/login/')
 
-    if not request.user.is_authenticated:
-        return redirect('login')
 
-    if request.user.username != "admin":
+@login_required
+def dashboard(request):
+    if request.user.role == "customer":
+        orders = Order.objects.filter(customer=request.user)
+    else:
+        orders = Order.objects.all()
+    return render(request, 'dashboard.html', {'orders': orders})
+
+
+@login_required
+def create_order(request):
+    items = FoodItem.objects.all()
+
+    if request.method == "POST":
+        order = Order.objects.create(customer=request.user)
+
+        for item in items:
+            qty = int(request.POST.get(f'item_{item.id}', 0))
+            if qty > 0:
+                OrderItem.objects.create(order=order, food_item=item, quantity=qty)
+
         return redirect('/')
 
-    form = InvoiceForm(request.POST or None)
-
-    if form.is_valid():
-        invoice = form.save(commit=False)
-
-        if request.user.is_authenticated:
-            invoice.created_by = request.user
-        else:
-            invoice.created_by = User.objects.first()
-
-        invoice.save()
-        return redirect('invoice_list')
-
-    return render(request, 'invoice/invoice_create.html', {'form': form})
+    return render(request, 'order.html', {'items': items})
 
 
-# DETAIL
-def invoice_detail(request, invoice_id):
-    invoice = get_object_or_404(Invoice, id=invoice_id)
-    return render(request, 'invoice/invoice_detail.html', {'invoice': invoice})
+@login_required
+def create_invoice(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
 
-
-
-
-def add_item(request, invoice_id):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    if request.user.username != "admin":
+    if hasattr(order, 'invoice'):
         return redirect('/')
 
-    invoice = get_object_or_404(Invoice, id=invoice_id)
+    items = OrderItem.objects.filter(order=order)
+    total = sum(i.quantity * i.food_item.price for i in items)
 
-    form = ItemForm(request.POST or None)   # ✅ THIS WAS MISSING
+    invoice = Invoice.objects.create(order=order, total_amount=total)
 
-    if form.is_valid():
-        item = form.save(commit=False)
-        item.invoice = invoice
-        item.save()
-        return redirect('invoice_detail', invoice_id=invoice.id)
+    for i in items:
+        InvoiceItem.objects.create(
+            invoice=invoice,
+            food_item=i.food_item,
+            quantity=i.quantity,
+            price=i.food_item.price
+        )
 
-    return render(request, 'invoice/add_item.html', {'form': form})
-
-
-
-
-# MARK PAID
-def mark_paid(request, invoice_id):
-    invoice = get_object_or_404(Invoice, id=invoice_id)
-    invoice.is_paid = True
-    invoice.save()
-    return redirect('invoice_detail', invoice_id=invoice.id)
-
-
-# PRODUCTS
-def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'product/product_list.html', {'products': products})
-
-
-def create_product(request):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    if request.user.username != "admin":
-        return redirect('/')
-
-    form = ProductForm(request.POST or None)
-    
-    if form.is_valid():
-        form.save()
-        return redirect('product_list')
-    return render(request, 'product/product_create.html', {'form': form})
+    return render(request, 'invoice.html', {'invoice': invoice})

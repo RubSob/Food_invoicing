@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Orders</h3>
+
+{% for o in orders %}
+    Order {{o.id}} - {{o.status}}
+    <a href="/invoice/{{o.id}}/">Create Invoice</a>
+    <br>
+{% endfor %}
+
+{% endblock %}

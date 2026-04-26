@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Staff Panel</h3>
+
+<table class="table table-striped">
+    <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for o in orders %}
+    <tr>
+        <td>{{o.id}}</td>
+        <td>{{o.status}}</td>
+        <td>
+            <a href="/update/{{o.id}}/" class="btn btn-sm btn-warning">
+                Update
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

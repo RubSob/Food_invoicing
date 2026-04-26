@@ -8,4 +8,6 @@ urlpatterns = [
     path('order/', views.create_order),
     path('invoice/<int:order_id>/', views.create_invoice),
     path('update/<int:order_id>/', views.update_order),
+    path('admin-dashboard/', views.admin_dashboard),
+    path('staff-dashboard/', views.staff_dashboard),
 ]

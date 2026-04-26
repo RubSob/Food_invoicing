@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4>Update Order #{{order.id}}</h4>
+
+<form method="post" class="card p-3">
+    {% csrf_token %}
+
+    <label>Status</label>
+
+    <select name="status" class="form-control">
+        <option>Pending</option>
+        <option>Delivered</option>
+    </select>
+
+    <button class="btn btn-success mt-3">Update</button>
+</form>
+
+{% endblock %}

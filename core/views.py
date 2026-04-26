@@ -7,12 +7,16 @@ def user_login(request):
     if request.method == "POST":
         user = authenticate(
             request,
-            username=request.POST['username'],
-            password=request.POST['password']
+            username=request.POST.get('username'),
+            password=request.POST.get('password')
         )
-        if user:
+
+        if user is not None:
             login(request, user)
             return redirect('/')
+        else:
+            return render(request, 'login.html', {'error': 'Invalid login'})
+
     return render(request, 'login.html')
 
 
@@ -49,35 +53,69 @@ def create_order(request):
 
 @login_required
 def create_invoice(request, order_id):
+
     order = get_object_or_404(Order, id=order_id)
 
-    if hasattr(order, 'invoice'):
-        return redirect('/')
+    invoice, created = Invoice.objects.get_or_create(
+        order=order,
+        defaults={'total_amount': 0}
+    )
 
-    items = OrderItem.objects.filter(order=order)
-    total = sum(i.quantity * i.food_item.price for i in items)
+    if created:
+        items = OrderItem.objects.filter(order=order)
 
-    invoice = Invoice.objects.create(order=order, total_amount=total)
+        total = sum(i.quantity * i.food_item.price for i in items)
+        invoice.total_amount = total
+        invoice.save()
 
-    for i in items:
-        InvoiceItem.objects.create(
-            invoice=invoice,
-            food_item=i.food_item,
-            quantity=i.quantity,
-            price=i.food_item.price
-        )
+        for i in items:
+            InvoiceItem.objects.create(
+                invoice=invoice,
+                food_item=i.food_item,
+                quantity=i.quantity,
+                price=i.food_item.price
+            )
 
     return render(request, 'invoice.html', {'invoice': invoice})
 
 
 @login_required
 def update_order(request, order_id):
-    order = Order.objects.get(id=order_id)
+
+    order = get_object_or_404(Order, id=order_id)
 
     if request.user.role != "staff":
         return redirect('/')
 
-    order.status = "Delivered"
-    order.save()
+    if request.method == "POST":
+        order.status = request.POST.get("status")
+        order.save()
 
-    return redirect('/')
+    return render(request, 'update_order.html', {'order': order})
+
+
+@login_required
+def admin_dashboard(request):
+
+    if request.user.role != "manager":
+        return redirect('/')
+
+    total_orders = Order.objects.count()
+    total_revenue = sum(i.total_amount for i in Invoice.objects.all())
+    pending_orders = Order.objects.filter(status="Pending").count()
+
+    return render(request, 'admin_dashboard.html', {
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'pending_orders': pending_orders
+    })
+
+@login_required
+def staff_dashboard(request):
+
+    if request.user.role != "staff":
+        return redirect('/')
+
+    orders = Order.objects.exclude(status="Delivered")
+
+    return render(request, 'staff_dashboard.html', {'orders': orders})

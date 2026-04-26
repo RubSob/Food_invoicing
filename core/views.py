@@ -68,3 +68,16 @@ def create_invoice(request, order_id):
         )
 
     return render(request, 'invoice.html', {'invoice': invoice})
+
+
+@login_required
+def update_order(request, order_id):
+    order = Order.objects.get(id=order_id)
+
+    if request.user.role != "staff":
+        return redirect('/')
+
+    order.status = "Delivered"
+    order.save()
+
+    return redirect('/')

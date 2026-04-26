@@ -7,4 +7,5 @@ urlpatterns = [
     path('logout/', views.user_logout),
     path('order/', views.create_order),
     path('invoice/<int:order_id>/', views.create_invoice),
+    path('update/<int:order_id>/', views.update_order),
 ]

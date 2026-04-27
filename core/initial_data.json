@@ -1,0 +1,115 @@
+[
+  {
+    "model": "core.user",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "password": "pbkdf2_sha256$600000$demo$hash1",
+      "role": "manager",
+      "is_staff": true,
+      "is_superuser": true,
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 2,
+    "fields": {
+      "username": "staff",
+      "password": "pbkdf2_sha256$600000$demo$hash2",
+      "role": "staff",
+      "is_staff": false,
+      "is_superuser": false,
+      "is_active": true
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 3,
+    "fields": {
+      "username": "user1",
+      "password": "pbkdf2_sha256$600000$demo$hash3",
+      "role": "customer",
+      "is_staff": false,
+      "is_superuser": false,
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "core.category",
+    "pk": 1,
+    "fields": {
+      "name": "Burger"
+    }
+  },
+  {
+    "model": "core.category",
+    "pk": 2,
+    "fields": {
+      "name": "Drinks"
+    }
+  },
+  {
+    "model": "core.category",
+    "pk": 3,
+    "fields": {
+      "name": "Pizza"
+    }
+  },
+
+  {
+    "model": "core.fooditem",
+    "pk": 1,
+    "fields": {
+      "name": "Bacon Burger",
+      "price": 4,
+      "category": 1
+    }
+  },
+  {
+    "model": "core.fooditem",
+    "pk": 2,
+    "fields": {
+      "name": "Cheeseburger",
+      "price": 3,
+      "category": 1
+    }
+  },
+  {
+    "model": "core.fooditem",
+    "pk": 3,
+    "fields": {
+      "name": "Water",
+      "price": 1,
+      "category": 2
+    }
+  },
+  {
+    "model": "core.fooditem",
+    "pk": 4,
+    "fields": {
+      "name": "Coke",
+      "price": 2,
+      "category": 2
+    }
+  },
+  {
+    "model": "core.fooditem",
+    "pk": 5,
+    "fields": {
+      "name": "New York Style Pizza",
+      "price": 14,
+      "category": 3
+    }
+  },
+  {
+    "model": "core.fooditem",
+    "pk": 6,
+    "fields": {
+      "name": "Neapolitan Pizza",
+      "price": 15,
+      "category": 3
+    }
+  }
+]

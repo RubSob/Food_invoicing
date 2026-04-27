@@ -19,3 +19,9 @@ class TestSystem(TestCase):
         invoice = Invoice.objects.create(order=order, total_amount=10)
 
         self.assertEqual(invoice.total_amount, 10)
+
+    def test_login_user(self):
+        user = User.objects.create_user(username="user1", password="password", role="customer")
+        self.client.login(username="user1", password="password")
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)

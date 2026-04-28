@@ -24,6 +24,30 @@ def user_logout(request):
     logout(request)
     return redirect('/login/')
 
+def register(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm = request.POST.get('confirm')
+        role = request.POST.get('role')
+
+        if password != confirm:
+            return render(request, 'register.html', {'error': 'Passwords do not match'})
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'register.html', {'error': 'Username already exists'})
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            role=role
+        )
+
+        return redirect('/login/')
+
+    return render(request, 'register.html')
 
 @login_required
 def dashboard(request):
